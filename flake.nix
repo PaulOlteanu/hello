@@ -65,9 +65,15 @@
       packages.docker = pkgs.dockerTools.streamLayeredImage {
         name = "hello";
         tag = "latest";
-        fromImage = debian-img;
+        # fromImage = debian-img;
 
-        contents = [hello];
+        contents = [
+          hello
+          pkgs.htop
+          pkgs.bash
+          pkgs.busybox
+        ];
+
         config = {
           Cmd = ["${hello}/bin/hello"];
         };
