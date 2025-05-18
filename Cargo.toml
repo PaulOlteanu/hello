@@ -6,6 +6,9 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.98"
 axum = { version = "0.8.1", features = ["query"] }
+config = { version = "0.15.11", default-features = false, features = [
+  "convert-case",
+] }
 metrics = "0.24.2"
 metrics-exporter-prometheus = "0.17.0"
 serde = { version = "1.0.219", features = ["derive"] }
