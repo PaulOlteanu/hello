@@ -14,6 +14,8 @@ metrics-exporter-prometheus = "0.17.0"
 opentelemetry = "0.29.1"
 opentelemetry-otlp = "0.29.0"
 opentelemetry_sdk = "0.29.0"
+pyroscope = "0.5.8"
+pyroscope_pprofrs = "0.2.10"
 serde = { version = "1.0.219", features = ["derive"] }
 sha2 = "0.10.9"
 tempfile = "3.20.0"

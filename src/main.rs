@@ -4,6 +4,8 @@ use metrics_exporter_prometheus::PrometheusBuilder;
 use opentelemetry::{trace::TracerProvider, KeyValue};
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::{trace::SdkTracerProvider, Resource};
+use pyroscope::PyroscopeAgent;
+use pyroscope_pprofrs::{pprof_backend, PprofConfig};
 use serde::Deserialize;
 use tracing_subscriber::{
     layer::SubscriberExt, registry::LookupSpan, util::SubscriberInitExt, EnvFilter, Layer,
@@ -23,6 +25,9 @@ struct Config {
     opentelemetry_trace_host: Option<String>,
     opentelemetry_trace_port: Option<u16>,
 
+    pyroscope_host: Option<String>,
+    pyroscope_port: Option<u16>,
+
     kubernetes_node_name: Option<String>,
     kubernetes_namespace: Option<String>,
     kubernetes_pod_name: Option<String>,
@@ -41,6 +46,9 @@ impl Default for Config {
 
             opentelemetry_trace_host: None,
             opentelemetry_trace_port: None,
+
+            pyroscope_host: None,
+            pyroscope_port: None,
 
             kubernetes_node_name: None,
             kubernetes_namespace: None,
@@ -138,6 +146,22 @@ where
     Some(layer)
 }
 
+fn get_pyroscope_agent(
+    config: &Config,
+) -> Option<PyroscopeAgent<pyroscope::pyroscope::PyroscopeAgentRunning>> {
+    let (Some(host), Some(port)) = (&config.pyroscope_host, config.pyroscope_port) else {
+        return None;
+    };
+
+    let url = format!("http://{host}:{port}");
+    let agent = PyroscopeAgent::builder(url.as_str(), "hello")
+        .backend(pprof_backend(PprofConfig::new().sample_rate(99)))
+        .build()
+        .unwrap();
+
+    Some(agent.start().unwrap())
+}
+
 #[tokio::main]
 async fn main() {
     let config: Config = config::Config::builder()
@@ -167,6 +191,8 @@ async fn main() {
         .with(loki_layer)
         .with(opentel_layer)
         .init();
+
+    let _pyroscope_agent = get_pyroscope_agent(&config);
 
     PrometheusBuilder::new()
         .with_http_listener(SocketAddr::new(
