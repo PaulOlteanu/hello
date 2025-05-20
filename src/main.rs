@@ -93,27 +93,6 @@ async fn main() {
         .try_deserialize()
         .unwrap();
 
-    // let mut headers = HashMap::new();
-    // headers.insert(String::from("VL-Msg-Field"), String::from("message"));
-
-    // let exporter = opentelemetry_otlp::LogExporter::builder()
-    //     .with_http()
-    //     .with_endpoint("http://127.0.0.1:9428/insert/opentelemetry/v1/logs")
-    //     .with_headers(headers)
-    //     .build()
-    //     .unwrap();
-    // let provider = SdkLoggerProvider::builder()
-    //     .with_batch_exporter(exporter)
-    //     .build();
-
-    // let filter_otel = EnvFilter::new("info")
-    //     .add_directive("hyper=off".parse().unwrap())
-    //     .add_directive("opentelemetry=off".parse().unwrap())
-    //     .add_directive("tonic=off".parse().unwrap())
-    //     .add_directive("h2=off".parse().unwrap())
-    //     .add_directive("reqwest=off".parse().unwrap());
-    // let otel_layer = OpenTelemetryTracingBridge::new(&provider).with_filter(filter_otel);
-
     let loki_layer = get_victorialogs_logger(&config);
 
     let filter_fmt = EnvFilter::try_from_default_env().unwrap_or_else(|_| {
@@ -128,7 +107,6 @@ async fn main() {
         .with_filter(filter_fmt);
 
     tracing_subscriber::registry()
-        // .with(otel_layer)
         .with(loki_layer)
         .with(fmt_layer)
         .init();
