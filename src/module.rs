@@ -68,7 +68,9 @@ impl MyStruct {
 
     #[tracing::instrument]
     pub async fn do_cpu_thing_spawn_blocking(&self, duration: Duration, cpu_percent: f64) {
+        let current_span = tracing::Span::current();
         tokio::task::spawn_blocking(move || {
+            let _span = current_span.enter();
             black_box(do_cpu_thing(duration, cpu_percent));
         })
         .await
@@ -78,7 +80,9 @@ impl MyStruct {
     #[tracing::instrument]
     pub async fn do_cpu_thing_spawn_thread(&self, duration: Duration, cpu_percent: f64) {
         let (send, recv) = tokio::sync::oneshot::channel();
+        let current_span = tracing::Span::current();
         std::thread::spawn(move || {
+            let _span = current_span.enter();
             black_box(do_cpu_thing(duration, cpu_percent));
             let _ = send.send(());
         });
