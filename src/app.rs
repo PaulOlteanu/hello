@@ -7,6 +7,7 @@ use axum::{extract::Query, response::IntoResponse, routing::get, Router};
 use serde::Deserialize;
 use tokio::{io::AsyncReadExt, net::TcpListener};
 use tower_http::trace::TraceLayer;
+use tracing::info;
 
 use crate::module::MyStruct;
 
@@ -68,6 +69,8 @@ async fn devnull_as_a_service(port: u16) -> anyhow::Result<()> {
 #[tracing::instrument]
 async fn hello_handler() -> impl IntoResponse {
     metrics::counter!("http_requests_total", "path" => "/").increment(1);
+    info!("HELLO");
+
     "Hello World"
 }
 

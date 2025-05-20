@@ -11,10 +11,16 @@ config = { version = "0.15.11", default-features = false, features = [
 ] }
 metrics = "0.24.2"
 metrics-exporter-prometheus = "0.17.0"
+opentelemetry-appender-tracing = "0.29.1"
+opentelemetry-otlp = "0.29.0"
+opentelemetry-stdout = "0.29.0"
+opentelemetry_sdk = { version = "0.29.0", features = ["logs"] }
 serde = { version = "1.0.219", features = ["derive"] }
 sha2 = "0.10.9"
 tempfile = "3.20.0"
 tokio = { version = "1.43.0", features = ["full"] }
 tower-http = { version = "0.6.2", features = ["full"] }
 tracing = "0.1.41"
+tracing-loki = "0.2.6"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+url = "2.5.4"
