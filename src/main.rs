@@ -59,7 +59,10 @@ impl Default for Config {
 }
 
 // TODO: Just have this use opentel too
-fn get_victorialogs_logger(config: &Config) -> Option<tracing_loki::Layer> {
+fn get_victorialogs_logger<S>(config: &Config) -> Option<impl Layer<S>>
+where
+    S: tracing::Subscriber + for<'a> LookupSpan<'a>,
+{
     let (Some(host), Some(port)) = (&config.victorialogs_host, config.victorialogs_port) else {
         return None;
     };
@@ -100,7 +103,15 @@ fn get_victorialogs_logger(config: &Config) -> Option<tracing_loki::Layer> {
 
     tokio::spawn(task);
 
-    Some(loki_layer)
+    let filter_fmt = EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+        format!(
+            "info,{}=debug,tower_http=debug,axum::rejection=trace",
+            env!("CARGO_CRATE_NAME")
+        )
+        .into()
+    });
+
+    Some(loki_layer.with_filter(filter_fmt))
 }
 
 fn get_opentel_layer<S>(config: &Config) -> Option<impl Layer<S>>

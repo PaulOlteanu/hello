@@ -16,5 +16,6 @@ RUN cargo build --release
 # We do not need the Rust toolchain to run the binary!
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
+RUN apt update && apt install -y libssl-dev
 COPY --from=builder /app/target/release/hello /usr/local/bin
 ENTRYPOINT ["/usr/local/bin/hello"]
